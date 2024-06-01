@@ -238,6 +238,17 @@ pub trait FromBytesWithInput: Sized + Debug {
     }
 }
 
+impl <T: FromBytes> FromBytesWithInput for T {
+    type Input = usize;
+
+    fn from_bytes_with_input(
+        buffer: &mut Cursor<impl AsRef<[u8]>>,
+        _input: Self::Input,
+    ) -> Result<Self, DeError> {
+        T::from_bytes(buffer)
+    }
+}
+
 /// Takes an arbitrary input which serves as additional information
 /// for guiding the conversion from a byte buffer to a data
 /// structure. A common workflow is a data structure that has a size
@@ -346,18 +357,6 @@ impl ToBytes for () {
 
 impl FromBytes for () {
     fn from_bytes(_: &mut Cursor<impl AsRef<[u8]>>) -> Result<Self, DeError> {
-        Ok(())
-    }
-}
-
-impl FromBytesWithInput for () {
-    type Input = usize;
-
-    fn from_bytes_with_input(
-        _: &mut Cursor<impl AsRef<[u8]>>,
-        input: usize,
-    ) -> Result<Self, DeError> {
-        assert_eq!(input, 0);
         Ok(())
     }
 }
